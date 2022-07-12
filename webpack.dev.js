@@ -2,8 +2,6 @@ const webpack = require('webpack');
 const webpackMerge = require('webpack-merge').merge;
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 const SimpleProgressWebpackPlugin = require('simple-progress-webpack-plugin');
-const path = require('path');
-const sass = require('sass');
 
 const utils = require('./utils.js');
 const commonConfig = require('./webpack.common.js');
@@ -20,8 +18,7 @@ module.exports = async options => {
     output: {
       path: utils.root('build'),
       filename: '[name].[contenthash:8].js',
-      chunkFilename: '[name].[chunkhash:8].chunk.js',
-      publicPath: 'http://localhost:' + PORT + '/',
+      chunkFilename: '[name].[chunkhash:8].chunk.js'
     },
     optimization: {
       moduleIds: 'named',
