@@ -42,7 +42,7 @@ module.exports = async (options) => {
       cache: {
         // 1. Set cache type to filesystem
         type: 'filesystem',
-        cacheDirectory: path.resolve(__dirname, '../build/cache'),
+        // cacheDirectory: path.resolve(__dirname, '../build/cache'),
         buildDependencies: {
           // 2. Add your config as buildDependency to get cache invalidation on config change
           config: [
