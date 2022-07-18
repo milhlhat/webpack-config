@@ -57,7 +57,7 @@ module.exports = async (options) => {
       },
       resolve: {
         extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
-        modules: ['node_modules'],
+        modules: ['node_modules', utils.root('src')],
         alias: {
           ...utils.mapTypescriptAliasToWebpackAlias(),
           react: path.resolve('./node_modules/react'),
