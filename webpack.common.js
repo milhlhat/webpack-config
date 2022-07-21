@@ -1,30 +1,32 @@
-const path = require('path');
-const webpack = require('webpack');
-const { merge } = require('webpack-merge');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-const ESLintPlugin = require('eslint-webpack-plugin');
-const MergeJsonWebpackPlugin = require('merge-jsons-webpack-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const sass = require('sass');
-const utils = require('./utils.js');
-const environment = require('./environment');
-const imageInlineSizeLimit = parseInt(process.env.IMAGE_INLINE_SIZE_LIMIT || '10000');
+const path = require("path");
+const webpack = require("webpack");
+const { merge } = require("webpack-merge");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
+const ESLintPlugin = require("eslint-webpack-plugin");
+const MergeJsonWebpackPlugin = require("merge-jsons-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const sass = require("sass");
+const utils = require("./utils.js");
+const environment = require("./environment");
+const imageInlineSizeLimit = parseInt(
+  process.env.IMAGE_INLINE_SIZE_LIMIT || "10000",
+);
 const getTsLoaderRule = (env) => {
   const rules = [
     {
-      loader: 'thread-loader',
+      loader: "thread-loader",
       options: {
         // There should be 1 cpu for the fork-ts-checker-webpack-plugin.
         // The value may need to be adjusted (e.g. to 1) in some CI environments,
         // as cpus() may report more cores than what are available to the build.
-        workers: require('os').cpus().length - 1,
+        workers: require("os").cpus().length - 1,
       },
     },
     {
-      loader: 'ts-loader',
+      loader: "ts-loader",
       options: {
         transpileOnly: true,
         happyPackMode: true,
@@ -35,35 +37,38 @@ const getTsLoaderRule = (env) => {
 };
 
 module.exports = async (options) => {
-  const isEnvProduction = options.env === 'production';
-  const isEnvDevelopment = options.env === 'development';
+  const isEnvProduction = options.env === "production";
+  const isEnvDevelopment = options.env === "development";
   return merge(
     {
       cache: {
         // 1. Set cache type to filesystem
-        type: 'filesystem',
+        type: "filesystem",
         // cacheDirectory: path.resolve(__dirname, '../build/cache'),
         buildDependencies: {
           // 2. Add your config as buildDependency to get cache invalidation on config change
           config: [
             __filename,
-            path.resolve(__dirname, `webpack.${isEnvDevelopment ? 'dev' : 'prod'}.js`),
-            path.resolve(__dirname, 'environment.js'),
-            path.resolve(__dirname, 'utils.js'),
-            path.resolve(__dirname, '../postcss.config.js'),
-            path.resolve(__dirname, '../tsconfig.json'),
+            path.resolve(
+              __dirname,
+              `webpack.${isEnvDevelopment ? "dev" : "prod"}.js`,
+            ),
+            path.resolve(__dirname, "environment.js"),
+            path.resolve(__dirname, "utils.js"),
+            path.resolve(__dirname, "../postcss.config.js"),
+            path.resolve(__dirname, "../tsconfig.json"),
           ],
         },
       },
       resolve: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
-        modules: ['node_modules', utils.root('src')],
+        extensions: [".js", ".jsx", ".ts", ".tsx", ".json"],
+        modules: ["node_modules", utils.root("src")],
         alias: {
           ...utils.mapTypescriptAliasToWebpackAlias(),
-          react: path.resolve('./node_modules/react'),
+          react: path.resolve("./node_modules/react"),
         },
         fallback: {
-          path: require.resolve('path-browserify'),
+          path: require.resolve("path-browserify"),
         },
       },
       module: {
@@ -73,13 +78,13 @@ module.exports = async (options) => {
               {
                 test: /\.tsx?$/,
                 use: getTsLoaderRule(options.env),
-                include: [utils.root('./src')],
-                exclude: [utils.root('node_modules')],
+                include: [utils.root("./src")],
+                exclude: [utils.root("node_modules")],
               },
               {
                 test: [/\.avif$/],
-                type: 'asset',
-                mimetype: 'image/avif',
+                type: "asset",
+                mimetype: "image/avif",
                 parser: {
                   dataUrlCondition: {
                     maxSize: imageInlineSizeLimit,
@@ -91,7 +96,7 @@ module.exports = async (options) => {
               // A missing `test` is equivalent to a match.
               {
                 test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
-                type: 'asset',
+                type: "asset",
                 parser: {
                   dataUrlCondition: {
                     maxSize: imageInlineSizeLimit,
@@ -102,7 +107,7 @@ module.exports = async (options) => {
                 test: /\.svg$/,
                 use: [
                   {
-                    loader: require.resolve('@svgr/webpack'),
+                    loader: require.resolve("@svgr/webpack"),
                     options: {
                       prettier: false,
                       svgo: false,
@@ -114,9 +119,9 @@ module.exports = async (options) => {
                     },
                   },
                   {
-                    loader: require.resolve('file-loader'),
+                    loader: require.resolve("file-loader"),
                     options: {
-                      name: 'static/media/[name].[hash].[ext]',
+                      name: "static/media/[name].[hash].[ext]",
                     },
                   },
                 ],
@@ -128,13 +133,26 @@ module.exports = async (options) => {
                 test: /\.less$/,
                 use: [
                   {
-                    loader: isEnvDevelopment ? 'style-loader' : MiniCssExtractPlugin.loader,
+                    loader: isEnvDevelopment
+                      ? "style-loader"
+                      : MiniCssExtractPlugin.loader,
                   },
                   {
-                    loader: 'css-loader', // translates CSS into CommonJS
+                    loader: "css-loader", // translates CSS into CommonJS
                   },
                   {
-                    loader: 'less-loader', // compiles Less to CSS
+                    loader: "postcss-loader",
+                    options: {
+                      postcssOptions: {
+                        plugins: [
+                          require("tailwindcss"),
+                          require("autoprefixer"),
+                        ],
+                      },
+                    },
+                  },
+                  {
+                    loader: "less-loader", // compiles Less to CSS
                     options: {
                       lessOptions: {
                         javascriptEnabled: true,
@@ -147,14 +165,24 @@ module.exports = async (options) => {
                 test: /\.(sa|sc|c)ss$/,
                 use: [
                   {
-                    loader: isEnvDevelopment ? 'style-loader' : MiniCssExtractPlugin.loader,
+                    loader: isEnvDevelopment
+                      ? "style-loader"
+                      : MiniCssExtractPlugin.loader,
                   },
-                  'css-loader',
+                  "css-loader",
                   {
-                    loader: 'postcss-loader',
+                    loader: "postcss-loader",
+                    options: {
+                      postcssOptions: {
+                        plugins: [
+                          require("tailwindcss"),
+                          require("autoprefixer"),
+                        ],
+                      },
+                    },
                   },
                   {
-                    loader: 'sass-loader',
+                    loader: "sass-loader",
                     options: { implementation: sass },
                   },
                 ],
@@ -170,7 +198,7 @@ module.exports = async (options) => {
                 // Also exclude `html` and `json` extensions so they get processed
                 // by webpacks internal loaders.
                 exclude: [/^$/, /\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
-                type: 'asset/resource',
+                type: "asset/resource",
               },
               // ** STOP ** Are you adding a new loader?
               // Make sure to add the new loader(s) before the "file" loader.
@@ -185,16 +213,16 @@ module.exports = async (options) => {
       plugins: [
         new webpack.EnvironmentPlugin({
           // react-jhipster requires LOG_LEVEL config.
-          LOG_LEVEL: isEnvDevelopment ? 'info' : 'error',
+          LOG_LEVEL: isEnvDevelopment ? "info" : "error",
         }),
         new webpack.DefinePlugin({
           DEVELOPMENT: JSON.stringify(isEnvDevelopment),
           VERSION: JSON.stringify(environment.VERSION),
           SERVER_API_URL: JSON.stringify(environment.SERVER_API_URL),
-          'process.env': JSON.stringify(process.env),
+          "process.env": JSON.stringify(process.env),
         }),
         new ESLintPlugin({
-          extensions: ['js', 'mjs', 'jsx', 'ts', 'tsx'],
+          extensions: ["js", "mjs", "jsx", "ts", "tsx"],
         }),
         new ForkTsCheckerWebpackPlugin(),
         // new CopyWebpackPlugin({
@@ -206,14 +234,14 @@ module.exports = async (options) => {
         //   ],
         // }),
         new HtmlWebpackPlugin({
-          template: './public/index.html',
-          chunksSortMode: 'auto',
-          inject: 'body',
-          base: '/',
+          template: "./public/index.html",
+          chunksSortMode: "auto",
+          inject: "body",
+          base: "/",
         }),
         new CleanWebpackPlugin(),
       ],
     },
-    require('./webpack.microfrontend')({ serve: options.env.WEBPACK_SERVE })
+    require("./webpack.microfrontend")({ serve: options.env.WEBPACK_SERVE }),
   );
 };

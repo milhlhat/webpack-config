@@ -14,19 +14,15 @@ module.exports = ({ serve }) => {
       new ModuleFederationPlugin({
         name: "AppName",
         filename: "remoteEntry.js",
-        remotes: {
-          
-        },
-        exposes: {
-         
-        },
+        remotes: {},
+        exposes: {},
         shared: {
           ...Object.fromEntries(
             Object.entries(packageJson.dependencies).map(([module]) => [
               module,
               { singleton: true, shareScope: "default" },
-            ])
-          )
+            ]),
+          ),
         },
       }),
     ],
