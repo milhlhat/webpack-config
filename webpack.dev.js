@@ -1,27 +1,27 @@
-const webpack = require('webpack');
-const webpackMerge = require('webpack-merge').merge;
-const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
-const SimpleProgressWebpackPlugin = require('simple-progress-webpack-plugin');
+const webpack = require("webpack");
+const webpackMerge = require("webpack-merge").merge;
+const BrowserSyncPlugin = require("browser-sync-webpack-plugin");
+const SimpleProgressWebpackPlugin = require("simple-progress-webpack-plugin");
 
-const utils = require('./utils.js');
-const commonConfig = require('./webpack.common.js');
+const utils = require("./utils.js");
+const commonConfig = require("./webpack.common.js");
 
-const ENV = 'development';
+const ENV = "development";
 
-module.exports = async options => {
+module.exports = async (options) => {
   const PORT = process.env.APP_PORT || 3000;
   const PROXY_PORT = process.env.APP_PROXY_PORT || 3300;
-  return webpackMerge(await commonConfig({env: ENV}), {
+  return webpackMerge(await commonConfig({ env: ENV }), {
     // devtool: 'cheap-module-source-map', // https://reactjs.org/docs/cross-origin-errors.html
     mode: ENV,
-    entry: './src/index.tsx',
+    entry: "./src/index.tsx",
     output: {
-      path: utils.root('build'),
-      filename: '[name].[contenthash:8].js',
-      chunkFilename: '[name].[chunkhash:8].chunk.js'
+      path: utils.root("build"),
+      filename: "[name].[contenthash:8].js",
+      chunkFilename: "[name].[chunkhash:8].chunk.js",
     },
     optimization: {
-      moduleIds: 'named',
+      moduleIds: "named",
     },
     devServer: {
       hot: false,
@@ -35,8 +35,15 @@ module.exports = async options => {
       port: PORT,
       proxy: [
         {
-          context: ['/api', '/services', '/management', '/v3/api-docs', '/h2-console', '/auth'],
-          target: `http${options.tls ? 's' : ''}://localhost:8080`,
+          context: [
+            "/api",
+            "/services",
+            "/management",
+            "/v3/api-docs",
+            "/h2-console",
+            "/auth",
+          ],
+          target: `http${options.tls ? "s" : ""}://localhost:8080`,
           secure: false,
           changeOrigin: options.tls,
         },
@@ -48,9 +55,9 @@ module.exports = async options => {
           warnings: false,
           errors: true,
         },
-      }
+      },
     },
-    stats: 'none',
+    stats: "none",
     plugins: [
       process.env.JHI_DISABLE_WEBPACK_LOGS
         ? null
@@ -60,10 +67,12 @@ module.exports = async options => {
       new BrowserSyncPlugin(
         {
           https: options.tls,
-          host: 'localhost',
+          host: "localhost",
           port: PROXY_PORT,
           proxy: {
-            target: `http${options.tls ? 's' : ''}://localhost:${options.watch ? '8080' : PORT}`,
+            target: `http${options.tls ? "s" : ""}://localhost:${
+              options.watch ? "8080" : PORT
+            }`,
             ws: true,
             proxyOptions: {
               changeOrigin: false, //pass the Host header to the backend unchanged  https://github.com/Browsersync/browser-sync/issues/430
@@ -75,6 +84,9 @@ module.exports = async options => {
             },
           },
           open: true,
+          ui: {
+            port: +PROXY_PORT + 1000,
+          },
           /*
       ,ghostMode: { // uncomment this part to disable BrowserSync ghostMode; https://github.com/jhipster/generator-jhipster/issues/11116
         clicks: false,
@@ -85,7 +97,7 @@ module.exports = async options => {
         },
         {
           reload: false,
-        }
+        },
       ),
     ].filter(Boolean),
   });
